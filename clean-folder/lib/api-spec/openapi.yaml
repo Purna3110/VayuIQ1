@@ -1,0 +1,435 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: VayuIQ Air Quality Intelligence API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: aqi
+    description: Air quality data
+  - name: reports
+    description: Pollution reports
+  - name: tasks
+    description: Authority tasks
+  - name: auth
+    description: Authentication
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /aqi/current:
+    get:
+      operationId: getCurrentAqi
+      tags: [aqi]
+      summary: Get current AQI data
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: number
+        - name: lng
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Current AQI data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AqiData"
+
+  /aqi/prediction:
+    get:
+      operationId: getAqiPrediction
+      tags: [aqi]
+      summary: Get AQI prediction for next 3 days
+      responses:
+        "200":
+          description: AQI prediction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AqiPrediction"
+
+  /aqi/hotspots:
+    get:
+      operationId: getHotspots
+      tags: [aqi]
+      summary: Get pollution hotspots
+      responses:
+        "200":
+          description: List of hotspots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hotspot"
+
+  /reports:
+    get:
+      operationId: getReports
+      tags: [reports]
+      summary: Get all pollution reports
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Submit a pollution report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReport"
+      responses:
+        "201":
+          description: Report created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /tasks:
+    get:
+      operationId: getTasks
+      tags: [tasks]
+      summary: Get authority tasks
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{id}:
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update task status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+      responses:
+        "200":
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    AqiData:
+      type: object
+      properties:
+        aqi:
+          type: number
+        category:
+          type: string
+        dominantPollutant:
+          type: string
+        temperature:
+          type: number
+        humidity:
+          type: number
+        windSpeed:
+          type: number
+        location:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        riskPercentage:
+          type: number
+        healthAdvice:
+          type: string
+        timestamp:
+          type: string
+      required:
+        - aqi
+        - category
+        - dominantPollutant
+        - temperature
+        - humidity
+        - windSpeed
+        - location
+        - lat
+        - lng
+        - riskPercentage
+        - healthAdvice
+        - timestamp
+
+    AqiPrediction:
+      type: object
+      properties:
+        predictions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayPrediction"
+        insight:
+          type: string
+      required:
+        - predictions
+        - insight
+
+    DayPrediction:
+      type: object
+      properties:
+        date:
+          type: string
+        aqi:
+          type: number
+        category:
+          type: string
+      required:
+        - date
+        - aqi
+        - category
+
+    Hotspot:
+      type: object
+      properties:
+        id:
+          type: integer
+        lat:
+          type: number
+        lng:
+          type: number
+        aqi:
+          type: number
+        name:
+          type: string
+        severity:
+          type: string
+      required:
+        - id
+        - lat
+        - lng
+        - aqi
+        - name
+        - severity
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        location:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+      required:
+        - id
+        - location
+        - description
+        - severity
+        - status
+        - createdAt
+
+    CreateReport:
+      type: object
+      properties:
+        location:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+      required:
+        - location
+        - description
+        - severity
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        notes:
+          type: string
+        location:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - status
+        - createdAt
+
+    CreateTask:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+      required:
+        - title
+
+    UpdateTask:
+      type: object
+      properties:
+        status:
+          type: string
+        notes:
+          type: string
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          $ref: "#/components/schemas/User"
+        role:
+          type: string
+      required:
+        - success
+        - role
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - name
+        - role
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

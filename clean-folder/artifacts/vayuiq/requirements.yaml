@@ -1,0 +1,13 @@
+packages:
+  "react-hook-form": "Form state management"
+  "@hookform/resolvers": "Zod validation for forms"
+  "clsx": "Class name utility"
+  "tailwind-merge": "Class name utility"
+  "date-fns": "Date formatting"
+  "lucide-react": "Icons"
+  "zod": "Schema validation"
+images: []
+notes:
+  - "Using CartoDB Dark Matter for the dark satellite map base"
+  - "Relying on in-memory/localStorage for session state as /me endpoint isn't defined"
+  - "Assuming @workspace/api-client-react is available for React Query hooks"
