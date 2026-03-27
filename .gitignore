@@ -48,3 +48,4 @@ Thumbs.db
 .cache/
 .local/
 final-clean2.zip
+*.zip
