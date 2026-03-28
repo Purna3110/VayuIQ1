@@ -1,2 +1,5 @@
 export * from "./generated/api";
-export * from "./generated/types";
+
+// only export specific non-conflicting things
+// example:
+export { SomeOtherType } from "./generated/other";
